@@ -1,0 +1,6 @@
+{
+  "watch": ["*.js", "controllers", "routes", "models", "middleware", "utils"],
+  "ext": "js,json",
+  "delay": 800,
+  "signal": "SIGTERM"
+}
