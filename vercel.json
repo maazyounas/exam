@@ -26,22 +26,29 @@
 }
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "npm install",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
   "functions": {
     "api/index.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs20.x",
+      "includeFiles": "backend/**"
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/frontend/dist/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
