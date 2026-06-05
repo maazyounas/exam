@@ -57,7 +57,8 @@ async function connectDB() {
   }
 
   console.log('Starting in-memory MongoDB (development fallback)...');
-  const { MongoMemoryServer } = require('mongodb-memory-server');
+  const packageName = 'mongodb-memory-server';
+  const { MongoMemoryServer } = require(packageName);
   memoryServer = await MongoMemoryServer.create();
   const memoryUri = memoryServer.getUri('examdb');
   await connectWithUri(memoryUri);
