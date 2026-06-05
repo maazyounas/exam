@@ -9,9 +9,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-connectDB().catch((err) => {
-  console.error('Fatal: could not connect to MongoDB:', err.message);
-  process.exit(1);
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Initialize DB connection on first request (Vercel-friendly)
+let dbConnected = false;
+const dbPromise = connectDB().then(() => {
+  dbConnected = true;
+}).catch((err) => {
+  console.error('MongoDB connection failed:', err.message);
+  if (process.env.NODE_ENV === 'production') {
+    console.error('CRITICAL: In production, MongoDB connection is required.');
+  }
 });
 
 // Routes
@@ -24,6 +35,20 @@ app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/issues', require('./routes/issues'));
 app.use('/api/reports', require('./routes/reporting'));
 app.use('/api/notifications', require('./routes/notifications'));
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: 'Endpoint not found' });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(err.status || 500).json({ 
+    message: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 
