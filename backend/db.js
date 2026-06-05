@@ -5,6 +5,7 @@ let memoryServer = null;
 const connectOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
 };
 
 async function cleanupLegacyIndexes() {
