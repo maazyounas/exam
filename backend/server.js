@@ -40,26 +40,39 @@ const requireDatabase = async (req, res, next) => {
   });
 };
 
-// Routes
-const authRouter = require('./routes/auth');
-const studentsRouter = require('./routes/students');
-const educatorsRouter = require('./routes/educators');
-const monitoringRouter = require('./routes/monitoring');
-const feedbackRouter = require('./routes/feedback');
-const issuesRouter = require('./routes/issues');
-const reportingRouter = require('./routes/reporting');
-const notificationsRouter = require('./routes/notifications');
+// Routes — loaded defensively for Vercel bundler compatibility
+function safeRequire(name, path) {
+  try {
+    const mod = require(path);
+    if (typeof mod !== 'function') {
+      console.error(`Route "${name}" exported ${typeof mod} instead of function — skipping`);
+      return null;
+    }
+    return mod;
+  } catch (err) {
+    console.error(`Route "${name}" failed to load:`, err.message);
+    return null;
+  }
+}
+
+const routeDefs = [
+  { path: '/api/auth',          mod: safeRequire('auth', './routes/auth') },
+  { path: '/api/students',      mod: safeRequire('students', './routes/students') },
+  { path: '/api/educators',     mod: safeRequire('educators', './routes/educators') },
+  { path: '/api/monitoring',    mod: safeRequire('monitoring', './routes/monitoring') },
+  { path: '/api/feedback',      mod: safeRequire('feedback', './routes/feedback') },
+  { path: '/api/issues',        mod: safeRequire('issues', './routes/issues') },
+  { path: '/api/reports',       mod: safeRequire('reports', './routes/reporting') },
+  { path: '/api/notifications', mod: safeRequire('notifications', './routes/notifications') },
+];
 
 app.use('/api', requireDatabase);
-app.use('/api/auth', authRouter);
-app.use('/api/students', studentsRouter);
-app.use('/api/educators', educatorsRouter);
-app.use('/api/monitoring', monitoringRouter);
+for (const route of routeDefs) {
+  if (route.mod) {
+    app.use(route.path, route.mod);
+  }
+}
 app.use('/uploads', express.static('uploads'));
-app.use('/api/feedback', feedbackRouter);
-app.use('/api/issues', issuesRouter);
-app.use('/api/reports', reportingRouter);
-app.use('/api/notifications', notificationsRouter);
 
 // 404 handler
 app.use((req, res) => {

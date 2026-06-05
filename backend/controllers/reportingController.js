@@ -3,10 +3,7 @@ const Result = require('../models/Result');
 const Feedback = require('../models/Feedback');
 const Issue = require('../models/Issue');
 const User = require('../models/User');
-const ExcelJS = require('exceljs');
-const PDFDocument = require('pdfkit');
-const path = require('path');
-const fs = require('fs');
+
 
 // @desc   Get Analytics Dashboard Data
 // @route  GET /api/reports/analytics
@@ -125,6 +122,7 @@ exports.exportReport = async (req, res) => {
       : 0;
 
     if (format === 'excel') {
+      const ExcelJS = require('exceljs');
       const workbook = new ExcelJS.Workbook();
       workbook.creator = 'Exam Management System';
 
@@ -175,6 +173,7 @@ exports.exportReport = async (req, res) => {
       res.end();
 
     } else if (format === 'pdf') {
+      const PDFDocument = require('pdfkit');
       const doc = new PDFDocument({ margin: 50 });
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=Exam_Report_${examId}.pdf`);
