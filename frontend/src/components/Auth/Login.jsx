@@ -80,11 +80,15 @@ const Login = () => {
           </button>
         </form>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', fontSize: '14px' }}>
-          <p style={{ margin: 0 }}>Don't have an account? <Link to="/register">Create one →</Link></p>
-          {role === 'student' && (
-            <Link to="/forgot-password" style={{ color: 'var(--primary)', fontWeight: '600' }}>Forgot Password?</Link>
-          )}
+        <div className="auth-actions">
+          <div className="auth-actions-row">
+            <p>Don't have an account?</p>
+            <Link to="/register" className="auth-secondary-link">Create one</Link>
+          </div>
+          <div className="auth-actions-row">
+            <p>Need help signing in?</p>
+            <Link to="/forgot-password" className="auth-secondary-link">Forgot Password?</Link>
+          </div>
         </div>
       </div>
     </div>
