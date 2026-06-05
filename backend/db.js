@@ -21,15 +21,27 @@ async function cleanupLegacyIndexes() {
 }
 
 async function connectWithUri(uri) {
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
+
   await mongoose.connect(uri, connectOptions);
   console.log(`MongoDB connected (${uri.includes('127.0.0.1') || uri.includes('localhost') ? 'local' : 'remote'})`);
   await cleanupLegacyIndexes();
 }
 
 async function connectDB() {
-  const configuredUri = process.env.MONGO_URI;
+  const configuredUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
   const localUri = 'mongodb://127.0.0.1:27017/examdb';
-  const candidates = configuredUri ? [configuredUri, localUri] : [localUri];
+
+  if (isProduction && !configuredUri) {
+    throw new Error('MONGO_URI or MONGODB_URI must be configured in production');
+  }
+
+  const candidates = configuredUri
+    ? [configuredUri, ...(isProduction ? [] : [localUri])]
+    : [localUri];
 
   for (const uri of candidates) {
     try {
@@ -40,7 +52,7 @@ async function connectDB() {
     }
   }
 
-  if (process.env.USE_MEMORY_DB === 'false') {
+  if (isProduction || process.env.USE_MEMORY_DB === 'false') {
     throw new Error('Could not connect to MongoDB and in-memory fallback is disabled');
   }
 

@@ -16,16 +16,32 @@ app.get('/health', (req, res) => {
 
 // Initialize DB connection on first request (Vercel-friendly)
 let dbConnected = false;
+let dbError = null;
 const dbPromise = connectDB().then(() => {
   dbConnected = true;
 }).catch((err) => {
+  dbError = err;
   console.error('MongoDB connection failed:', err.message);
   if (process.env.NODE_ENV === 'production') {
     console.error('CRITICAL: In production, MongoDB connection is required.');
   }
 });
 
+const requireDatabase = async (req, res, next) => {
+  if (dbConnected) return next();
+
+  await dbPromise;
+
+  if (dbConnected) return next();
+
+  return res.status(503).json({
+    message: 'Database connection is not available. Check MONGO_URI or MONGODB_URI in Vercel.',
+    ...(process.env.NODE_ENV !== 'production' && dbError && { error: dbError.message }),
+  });
+};
+
 // Routes
+app.use('/api', requireDatabase);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/students', require('./routes/students'));
 app.use('/api/educators', require('./routes/educators'));
