@@ -8,17 +8,18 @@ const Login = () => {
   const [role, setRole] = useState('student');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); setLoading(true);
+    setError('');
+    setLoading(true);
+
     try {
-      // login function might not need role, but let's pass it anyway or just keep it as is
       const loggedUser = await login(email, password);
-      
-      // Basic check if the role they selected matches their actual role
+
       if (loggedUser.role !== role) {
         setError(`You are not registered as a ${role}.`);
         setLoading(false);
@@ -27,69 +28,81 @@ const Login = () => {
 
       navigate(`/${loggedUser.role}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
-    } finally { setLoading(false); }
+      setError(
+        err.response?.data?.message ||
+          'Invalid email or password. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f0f2f8 0%, #eef2ff 100%)', padding: '20px' }}>
-      <div className="auth-container">
-        <div className="auth-logo">
-          <span className="auth-logo-icon">🎓</span>
-        </div>
-        <h2>Welcome Back</h2>
-        <p className="auth-subtitle">Sign in to your Examsphere account</p>
+    <div className="login-page">
+      <div className="login-card">
 
+        {/* HEADER */}
+        <div className="login-header">
+          <div className="login-logo">🎓</div>
+          <h2>Welcome Back</h2>
+          <p>Sign in to continue your learning journey</p>
+        </div>
+
+        {/* ERROR */}
         {error && (
-          <div className="alert-error" style={{ marginBottom: '16px' }}>
-            ⚠️ {error}
+          <div className="login-error">
+            ⚠ {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="login-form">
+
+          <label>Email</label>
           <input
-            id="login-email"
             type="email"
-            placeholder="Email address"
+            placeholder="Enter your email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            autoComplete="email"
           />
+
+          <label>Password</label>
           <input
-            id="login-password"
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            autoComplete="current-password"
           />
-          <select 
-            id="login-role"
+
+          <label>Login as</label>
+          <select
             value={role}
             onChange={e => setRole(e.target.value)}
-            style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '2px solid #e1e4f0', marginBottom: '16px', fontSize: '15px' }}
           >
-            <option value="student">👨‍🎓 Student</option>
+            <option value="student">🎓 Student</option>
             <option value="educator">👨‍🏫 Educator</option>
           </select>
 
-          <button type="submit" className="btn-auth" disabled={loading}>
-            {loading ? '⏳ Signing in…' : '🚀 Sign In'}
+          <button type="submit" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
+        {/* ACTIONS */}
         <div className="auth-actions">
           <div className="auth-actions-row">
-            <p>Don't have an account?</p>
-            <Link to="/register" className="auth-secondary-link">Create one</Link>
+            <span>Don’t have an account?</span>
+            <Link to="/register">Create one</Link>
           </div>
+
           <div className="auth-actions-row">
-            <p>Need help signing in?</p>
-            <Link to="/forgot-password" className="auth-secondary-link">Forgot Password?</Link>
+            <span>Forgot your password?</span>
+            <Link to="/forgot-password">Reset</Link>
           </div>
         </div>
+
       </div>
     </div>
   );
