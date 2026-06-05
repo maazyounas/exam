@@ -41,16 +41,25 @@ const requireDatabase = async (req, res, next) => {
 };
 
 // Routes
+const authRouter = require('./routes/auth');
+const studentsRouter = require('./routes/students');
+const educatorsRouter = require('./routes/educators');
+const monitoringRouter = require('./routes/monitoring');
+const feedbackRouter = require('./routes/feedback');
+const issuesRouter = require('./routes/issues');
+const reportingRouter = require('./routes/reporting');
+const notificationsRouter = require('./routes/notifications');
+
 app.use('/api', requireDatabase);
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/students', require('./routes/students'));
-app.use('/api/educators', require('./routes/educators'));
-app.use('/api/monitoring', require('./routes/monitoring'));
+app.use('/api/auth', authRouter);
+app.use('/api/students', studentsRouter);
+app.use('/api/educators', educatorsRouter);
+app.use('/api/monitoring', monitoringRouter);
 app.use('/uploads', express.static('uploads'));
-app.use('/api/feedback', require('./routes/feedback'));
-app.use('/api/issues', require('./routes/issues'));
-app.use('/api/reports', require('./routes/reporting'));
-app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/feedback', feedbackRouter);
+app.use('/api/issues', issuesRouter);
+app.use('/api/reports', reportingRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // 404 handler
 app.use((req, res) => {
