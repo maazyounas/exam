@@ -17,13 +17,21 @@ function loadRouter(routeModule, routeName) {
       ? Object.keys(routeModule).join(', ') || 'no enumerable keys'
       : typeof routeModule;
 
-    throw new TypeError(
-      `Invalid Express router export for ${routeName}. ` +
-      `Expected a router, but received ${shape}.`
+    console.error(
+      `Skipping ${routeName} because it does not export a valid Express router. ` +
+      `Received ${shape}.`
     );
+    return null;
   }
 
   return router;
+}
+
+function mountRoute(path, routeModule, routeName) {
+  const router = loadRouter(routeModule, routeName);
+  if (router) {
+    app.use(path, router);
+  }
 }
 
 // Health check endpoint
@@ -69,16 +77,16 @@ const notificationsRoutes = require('./routes/notifications');
 
 app.use('/api', requireDatabase);
 
-app.use('/api/auth', loadRouter(require('./routes/auth'), './routes/auth'));
-app.use('/api/students', loadRouter(require('./routes/students'), './routes/students'));
-app.use('/api/educators', loadRouter(require('./routes/educators'), './routes/educators'));
-app.use('/api/monitoring', loadRouter(require('./routes/monitoring'), './routes/monitoring'));
+mountRoute('/api/auth', require('./routes/auth'), './routes/auth');
+mountRoute('/api/students', require('./routes/students'), './routes/students');
+mountRoute('/api/educators', require('./routes/educators'), './routes/educators');
+mountRoute('/api/monitoring', require('./routes/monitoring'), './routes/monitoring');
 app.use('/uploads', express.static('uploads'));
 
-app.use('/api/feedback', loadRouter(require('./routes/feedback'), './routes/feedback'));
-app.use('/api/issues', loadRouter(require('./routes/issues'), './routes/issues'));
-app.use('/api/reports', loadRouter(require('./routes/reporting'), './routes/reporting'));
-app.use('/api/notifications', loadRouter(require('./routes/notifications'), './routes/notifications'));
+mountRoute('/api/feedback', require('./routes/feedback'), './routes/feedback');
+mountRoute('/api/issues', require('./routes/issues'), './routes/issues');
+mountRoute('/api/reports', require('./routes/reporting'), './routes/reporting');
+mountRoute('/api/notifications', require('./routes/notifications'), './routes/notifications');
 
 // 404 handler
 app.use((req, res) => {
