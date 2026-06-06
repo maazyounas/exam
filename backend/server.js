@@ -57,13 +57,24 @@ const requireDatabase = async (req, res, next) => {
   });
 };
 
-// Routes
+// Routes — static requires so Vercel bundler can trace dependencies
+const authRoutes = require('./routes/auth');
+const studentsRoutes = require('./routes/students');
+const educatorsRoutes = require('./routes/educators');
+const monitoringRoutes = require('./routes/monitoring');
+const feedbackRoutes = require('./routes/feedback');
+const issuesRoutes = require('./routes/issues');
+const reportingRoutes = require('./routes/reporting');
+const notificationsRoutes = require('./routes/notifications');
+
 app.use('/api', requireDatabase);
+
 app.use('/api/auth', loadRouter(require('./routes/auth'), './routes/auth'));
 app.use('/api/students', loadRouter(require('./routes/students'), './routes/students'));
 app.use('/api/educators', loadRouter(require('./routes/educators'), './routes/educators'));
 app.use('/api/monitoring', loadRouter(require('./routes/monitoring'), './routes/monitoring'));
 app.use('/uploads', express.static('uploads'));
+
 app.use('/api/feedback', loadRouter(require('./routes/feedback'), './routes/feedback'));
 app.use('/api/issues', loadRouter(require('./routes/issues'), './routes/issues'));
 app.use('/api/reports', loadRouter(require('./routes/reporting'), './routes/reporting'));
