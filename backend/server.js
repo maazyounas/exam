@@ -40,38 +40,25 @@ const requireDatabase = async (req, res, next) => {
   });
 };
 
-// Routes — loaded defensively for Vercel bundler compatibility
-function safeRequire(name, path) {
-  try {
-    const mod = require(path);
-    if (typeof mod !== 'function') {
-      console.error(`Route "${name}" exported ${typeof mod} instead of function — skipping`);
-      return null;
-    }
-    return mod;
-  } catch (err) {
-    console.error(`Route "${name}" failed to load:`, err.message);
-    return null;
-  }
-}
-
-const routeDefs = [
-  { path: '/api/auth',          mod: safeRequire('auth', './routes/auth') },
-  { path: '/api/students',      mod: safeRequire('students', './routes/students') },
-  { path: '/api/educators',     mod: safeRequire('educators', './routes/educators') },
-  { path: '/api/monitoring',    mod: safeRequire('monitoring', './routes/monitoring') },
-  { path: '/api/feedback',      mod: safeRequire('feedback', './routes/feedback') },
-  { path: '/api/issues',        mod: safeRequire('issues', './routes/issues') },
-  { path: '/api/reports',       mod: safeRequire('reports', './routes/reporting') },
-  { path: '/api/notifications', mod: safeRequire('notifications', './routes/notifications') },
-];
+// Routes — static requires so Vercel bundler can trace dependencies
+const authRoutes = require('./routes/auth');
+const studentsRoutes = require('./routes/students');
+const educatorsRoutes = require('./routes/educators');
+const monitoringRoutes = require('./routes/monitoring');
+const feedbackRoutes = require('./routes/feedback');
+const issuesRoutes = require('./routes/issues');
+const reportingRoutes = require('./routes/reporting');
+const notificationsRoutes = require('./routes/notifications');
 
 app.use('/api', requireDatabase);
-for (const route of routeDefs) {
-  if (route.mod) {
-    app.use(route.path, route.mod);
-  }
-}
+app.use('/api/auth', authRoutes);
+app.use('/api/students', studentsRoutes);
+app.use('/api/educators', educatorsRoutes);
+app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/issues', issuesRoutes);
+app.use('/api/reports', reportingRoutes);
+app.use('/api/notifications', notificationsRoutes);
 app.use('/uploads', express.static('uploads'));
 
 // 404 handler
