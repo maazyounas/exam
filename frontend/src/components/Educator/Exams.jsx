@@ -283,9 +283,12 @@ const Exams = () => {
               <div className="panel-form">
                 <h4>Step 3 — Variant Details</h4>
                 <form onSubmit={handleSubmit}>
-                  <div className="form-grid">
+                  <div className="form-grid" style={{ gridTemplateColumns: '1fr' }}>
                     <div className="form-row"><input name="title" placeholder="Variant title *" value={variantForm.title} onChange={handleVariantChange} required /></div>
-                    <div className="form-row"><input name="scheduledDate" type="datetime-local" value={variantForm.scheduledDate} onChange={handleVariantChange} required /></div>
+                    <div className="form-row">
+                      <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Scheduled Date & Time *</label>
+                      <input name="scheduledDate" type="datetime-local" value={variantForm.scheduledDate} onChange={handleVariantChange} required style={{ minWidth: '250px' }} />
+                    </div>
                     <div className="form-row"><input name="duration" type="number" min="5" placeholder="Duration (minutes) *" value={variantForm.duration} onChange={handleVariantChange} required /></div>
                     <div className="form-row"><input name="description" placeholder="Notes (optional)" value={variantForm.description} onChange={handleVariantChange} /></div>
                   </div>

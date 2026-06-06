@@ -261,10 +261,13 @@ const ExamBuilder = () => {
 
       <div className="panel-form">
         <h4>Create Exam Variant</h4>
-        <div className="form-grid">
+        <div className="form-grid" style={{ gridTemplateColumns: '1fr' }}>
           <div className="form-row">
             <input value={variantTitle} onChange={(e) => setVariantTitle(e.target.value)} placeholder="Variant title" />
-            <input type="datetime-local" value={variantScheduledDate} onChange={(e) => setVariantScheduledDate(e.target.value)} />
+          </div>
+          <div className="form-row">
+            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Scheduled Date & Time</label>
+            <input type="datetime-local" value={variantScheduledDate} onChange={(e) => setVariantScheduledDate(e.target.value)} style={{ minWidth: '250px' }} />
           </div>
           <div className="form-row">
             <input type="number" min="10" value={variantDuration} onChange={(e) => setVariantDuration(e.target.value)} placeholder="Duration (minutes)" />

@@ -622,6 +622,11 @@ form textarea:focus {
 form input::placeholder,
 form textarea::placeholder { color: var(--text-muted); }
 
+form input[type="datetime-local"] {
+  min-width: 250px;
+  cursor: pointer;
+}
+
 form button {
   margin-top: 0;
   padding: 12px 20px;
