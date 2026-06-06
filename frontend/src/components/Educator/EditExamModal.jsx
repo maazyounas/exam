@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import api from '../../lib/api.js';
 
+const getMinDateTimeLocal = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+};
+
 const EditExamModal = ({ exam, questions = [], onClose, onRefresh }) => {
   const [form, setForm] = useState({
     title: '',
@@ -49,6 +55,11 @@ const EditExamModal = ({ exam, questions = [], onClose, onRefresh }) => {
       setLoading(false);
       return;
     }
+    if (new Date(form.scheduledDate) <= new Date()) {
+      setError('Scheduled date & time must be in the future.');
+      setLoading(false);
+      return;
+    }
 
     try {
       await api.put(`/educators/exams/${exam._id}`, {
@@ -94,6 +105,7 @@ const EditExamModal = ({ exam, questions = [], onClose, onRefresh }) => {
               className="input-field" 
               value={form.scheduledDate} 
               onChange={handleChange} 
+              min={getMinDateTimeLocal()}
               required 
             />
           </div>

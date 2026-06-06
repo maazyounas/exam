@@ -4,6 +4,12 @@ import api from '../../lib/api.js';
 
 const generateGroupId = () => `GRP-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
+const getMinDateTimeLocal = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+};
+
 const ExamBuilder = () => {
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
@@ -123,6 +129,9 @@ const ExamBuilder = () => {
   const addVariant = () => {
     if (!variantTitle || !variantScheduledDate || !variantDuration || variantQuestions.length === 0) {
       return alert('Please complete variant details and select questions.');
+    }
+    if (new Date(variantScheduledDate) <= new Date()) {
+      return alert('Scheduled date & time must be in the future.');
     }
     setVariants((prev) => [
       ...prev,
@@ -267,7 +276,7 @@ const ExamBuilder = () => {
           </div>
           <div className="form-row">
             <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Scheduled Date & Time</label>
-            <input type="datetime-local" value={variantScheduledDate} onChange={(e) => setVariantScheduledDate(e.target.value)} style={{ minWidth: '250px' }} />
+            <input type="datetime-local" value={variantScheduledDate} onChange={(e) => setVariantScheduledDate(e.target.value)} min={getMinDateTimeLocal()} style={{ minWidth: '250px' }} />
           </div>
           <div className="form-row">
             <input type="number" min="10" value={variantDuration} onChange={(e) => setVariantDuration(e.target.value)} placeholder="Duration (minutes)" />

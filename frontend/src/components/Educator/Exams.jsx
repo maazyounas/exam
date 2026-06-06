@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react';
 import api from '../../lib/api.js';
 import EditExamModal from './EditExamModal.jsx';
 
+const getMinDateTimeLocal = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+};
+
 const getExamStatus = (scheduledDate) => {
   const now = new Date();
   const date = new Date(scheduledDate);
@@ -95,6 +101,9 @@ const Exams = () => {
     e.preventDefault();
     if (!variantForm.title || !variantForm.scheduledDate || !variantForm.duration || !variantForm.questions.length)
       return alert('Complete variant details and select at least one question.');
+    if (new Date(variantForm.scheduledDate) <= new Date()) {
+      return alert('Scheduled date & time must be in the future.');
+    }
     setLoading(true);
     try {
       const res = await api.post('/educators/exams', { ...variantForm, ...group });
@@ -287,7 +296,7 @@ const Exams = () => {
                     <div className="form-row"><input name="title" placeholder="Variant title *" value={variantForm.title} onChange={handleVariantChange} required /></div>
                     <div className="form-row">
                       <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Scheduled Date & Time *</label>
-                      <input name="scheduledDate" type="datetime-local" value={variantForm.scheduledDate} onChange={handleVariantChange} required style={{ minWidth: '250px' }} />
+                      <input name="scheduledDate" type="datetime-local" value={variantForm.scheduledDate} onChange={handleVariantChange} required min={getMinDateTimeLocal()} style={{ minWidth: '250px' }} />
                     </div>
                     <div className="form-row"><input name="duration" type="number" min="5" placeholder="Duration (minutes) *" value={variantForm.duration} onChange={handleVariantChange} required /></div>
                     <div className="form-row"><input name="description" placeholder="Notes (optional)" value={variantForm.description} onChange={handleVariantChange} /></div>
