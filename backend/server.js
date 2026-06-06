@@ -9,6 +9,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+function loadRouter(routeModule, routeName) {
+  const router = routeModule?.default ?? routeModule?.router ?? routeModule;
+
+  if (!router || typeof router.use !== 'function' || typeof router.handle !== 'function') {
+    const shape = routeModule && typeof routeModule === 'object'
+      ? Object.keys(routeModule).join(', ') || 'no enumerable keys'
+      : typeof routeModule;
+
+    throw new TypeError(
+      `Invalid Express router export for ${routeName}. ` +
+      `Expected a router, but received ${shape}.`
+    );
+  }
+
+  return router;
+}
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -42,15 +59,15 @@ const requireDatabase = async (req, res, next) => {
 
 // Routes
 app.use('/api', requireDatabase);
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/students', require('./routes/students'));
-app.use('/api/educators', require('./routes/educators'));
-app.use('/api/monitoring', require('./routes/monitoring'));
+app.use('/api/auth', loadRouter(require('./routes/auth'), './routes/auth'));
+app.use('/api/students', loadRouter(require('./routes/students'), './routes/students'));
+app.use('/api/educators', loadRouter(require('./routes/educators'), './routes/educators'));
+app.use('/api/monitoring', loadRouter(require('./routes/monitoring'), './routes/monitoring'));
 app.use('/uploads', express.static('uploads'));
-app.use('/api/feedback', require('./routes/feedback'));
-app.use('/api/issues', require('./routes/issues'));
-app.use('/api/reports', require('./routes/reporting'));
-app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/feedback', loadRouter(require('./routes/feedback'), './routes/feedback'));
+app.use('/api/issues', loadRouter(require('./routes/issues'), './routes/issues'));
+app.use('/api/reports', loadRouter(require('./routes/reporting'), './routes/reporting'));
+app.use('/api/notifications', loadRouter(require('./routes/notifications'), './routes/notifications'));
 
 // 404 handler
 app.use((req, res) => {
